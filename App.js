@@ -1,19 +1,30 @@
 import { Button } from "@react-native-material/core";
 import { StatusBar } from "expo-status-bar";
-import { useRef, useState } from "react";
-import { SafeAreaView, StyleSheet, Text, View, TextInput } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  ScrollView,
+} from "react-native";
 
 export default function App() {
   const [value, setValue] = useState("");
-  const [data, setData] = useState(["item 1", "item 2"]);
-  const inputRef = useRef("");
+  const [data, setData] = useState([]);
+  const inputRef = useRef();
 
-  const deleteItem = (index) => {
-    return setData(
-      data.filter((index) => {
-        return item.index !== index;
-      })
-    );
+  const handleSubmit = () => {
+    setData([...data, value]);
+    setValue("");
+  };
+
+  const handleRemove = (itemIndex) => {
+    const newTodos = data.filter((item, index) => {
+      return index !== itemIndex;
+    });
+    setData(newTodos);
   };
 
   return (
@@ -28,26 +39,32 @@ export default function App() {
             value={value}
             onChangeText={(value) => setValue(value)}
           />
-          <Button
-            variant="outlined"
-            title="Add"
-            onPress={() => setData([...data, value])}
-          />
+          <View style={styles.contentButton}>
+            <Button
+              variant="outlined"
+              style={styles.button}
+              title="Add"
+              onPress={handleSubmit}
+            />
+          </View>
         </View>
         <View style={styles.contentBottom}>
           <View style={styles.viewList}>
-            {data.map((item, index) => {
-              return (
-                <View style={styles.listItem}>
-                  <Text style={styles.textItem} key={index}>
-                    {item}
-                  </Text>
-                  <Text style={styles.iconItem} onPress={deleteItem}>
-                    X
-                  </Text>
-                </View>
-              );
-            })}
+            <ScrollView style={styles.scroll}>
+              {data.map((item, index) => {
+                return (
+                  <View key={index} style={styles.listItem}>
+                    <Text style={styles.textItem}>{item}</Text>
+                    <Text
+                      style={styles.iconItem}
+                      onPress={() => handleRemove(index)}
+                    >
+                      X
+                    </Text>
+                  </View>
+                );
+              })}
+            </ScrollView>
           </View>
         </View>
         <StatusBar style="auto" />
@@ -70,11 +87,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
     justifyContent: "flex-start",
-    width: "90%",
-    height: "90%",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#E0FFFF",
+    padding: 20,
   },
   contentTop: {
     display: "flex",
+    height: "20%",
+
     alignItems: "center",
     flexDirection: "column",
     justifyContent: "flex-start",
@@ -82,6 +103,7 @@ const styles = StyleSheet.create({
   },
   contentBottom: {
     display: "flex",
+    height: "80%",
     alignItems: "center",
     flexDirection: "column",
     justifyContent: "flex-start",
@@ -105,19 +127,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 18,
   },
+  // button
+  contentButton: {
+    width: "80%",
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  button: {},
   // scrollView
-  scrollView: {
-    backgroundColor: "pink",
-    marginHorizontal: 20,
+  scroll: {
+    width: "80%",
   },
   viewList: {
-    paddingTop: 20,
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
-    justifyContent: "center",
     width: "100%",
-    height: "60%",
+    height: "100%",
   },
 
   // listItem
@@ -126,7 +153,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
-    width: "80%",
+    width: "100%",
     borderWidth: 1,
     borderColor: "thistle",
     borderRadius: "5%",
